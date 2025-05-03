@@ -1,0 +1,61 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>3D Model Oluşturucu</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 40px;
+    }
+    input, button {
+      margin: 10px;
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Fotoğraflardan 3D STL Model Oluştur</h1>
+  <form id="uploadForm" enctype="multipart/form-data">
+    <input type="file" name="images" id="images" multiple accept="image/*" />
+    <br />
+    <button type="submit">Modeli Oluştur</button>
+  </form>
+  <p id="status"></p>
+  <script>
+    const form = document.getElementById("uploadForm");
+    const status = document.getElementById("status");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData();
+      const files = document.getElementById("images").files;
+
+      if (!files.length) {
+        status.innerText = "Lütfen en az bir fotoğraf yükleyin.";
+        return;
+      }
+
+      for (const file of files) {
+        formData.append("images", file);
+      }
+
+      status.innerText = "Fotoğraflar yükleniyor ve STL modeli oluşturuluyor...";
+
+      const res = await fetch("http://localhost:5000/upload", {
+        method: "POST",
+        body: formData
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        status.innerHTML = `Model hazır: <a href="${data.downloadUrl}" target="_blank">STL Dosyasını İndir</a>`;
+      } else {
+        status.innerText = "Bir hata oluştu. Lütfen tekrar deneyin.";
+      }
+    });
+  </script>
+</body>
+</html>
